@@ -1,0 +1,27 @@
+	
+
+TOOLS	
+git clone https://github.com/BSBSI007/PROJEXCT/	
+	
+PROJEXCT	
+	
+-xmlrpc https://www.mediafire.com/file/evcca6seyg9845k/Mass-XMLRPC-LinuXploit.com.zip/file	
+	
+installasi subfinder	
+	
+sudo apt update	
+	
+sudo apt install subfinder	
+	
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest	
+	
+	
+export PATH=$PATH:$(go env GOPATH)/bin	
+	
+sudo apt update && sudo apt upgrade -y	
+	
+sudo apt install python3 -y	
+	
+python3 --version	
+	
+sudo apt install python-is-python3	
