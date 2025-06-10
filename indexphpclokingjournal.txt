@@ -1,0 +1,7 @@
+// Initialize global environment
+define('INDEX_FILE_LOCATION', __FILE__);
+@include("./lib/pkp/includes/startup.inc.php");
+require_once './lib/pkp/includes/bootstrap.php';
+
+// Serve the request
+Application::get()->execute();
