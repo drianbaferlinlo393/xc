@@ -1,0 +1,193 @@
+<?php
+session_start();
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+$success = false;
+$error = '';
+
+// Ganti dengan password hash milikmu
+$hashedPassword = '$2a$12$uQRAPWrX2r3t.z81MVzFW.ClL4uaat1MnABdzt4rfgDIX38UWW/ju';
+
+// Login
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
+    if (password_verify($_POST['password'], $hashedPassword)) {
+        $_SESSION['authenticated'] = true;
+    } else {
+        $error = "Salah Passwordnya Cokk.";
+    }
+}
+
+// Jika belum login
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+?>
+<!DOCTYPE html>
+<html>
+<head><title>Masukan Password</title></head>
+<body style="background:black;color:white;padding:30px;">
+    <h2>Masukan Password</h2>
+    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
+    <form method="post">
+        <input type="password" name="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+<?php exit; }
+
+// Proses generate
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['generate']) &&
+    !empty($_POST['html_content']) &&
+    !empty($_POST['list_file']) &&
+    !empty($_POST['base_url'])
+) {
+    $baseDirectory = isset($_POST['base_directory']) ? trim($_POST['base_directory'], '/') : '';
+    $subDirectory = isset($_POST['sub_directory']) ? trim($_POST['sub_directory'], '/') : '';
+    $listFileName = trim($_POST['list_file']);
+    $baseUrl = rtrim(trim($_POST['base_url']), '/');
+
+    if (!file_exists($listFileName)) {
+        $error = "File list tidak ditemukan.";
+    }
+
+    if (empty($error)) {
+        $targetDirectory = __DIR__;
+        if ($baseDirectory && $subDirectory) $targetDirectory .= "/$baseDirectory/$subDirectory";
+        elseif ($baseDirectory) $targetDirectory .= "/$baseDirectory";
+
+        if (!is_dir($targetDirectory)) mkdir($targetDirectory, 0755, true);
+
+        $names = file($listFileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $generatedUrls = [];
+
+        foreach ($names as $name) {
+            $name = trim($name);
+            $formattedName = strtoupper(str_replace('-', ' ', $name));
+            $AMPName = ucwords(str_replace('-', ' ', $name));
+
+            if (!empty($subDirectory)) {
+                $finalDirectory = "$targetDirectory/$name";
+                if (!is_dir($finalDirectory)) mkdir($finalDirectory, 0755, true);
+                $filePath = "$finalDirectory/index.html";
+                $url = $baseUrl . '/' . trim("$baseDirectory/$subDirectory/$name", '/') . '/';
+            } else {
+                $dirPath = "$targetDirectory/$name";
+                if (!is_dir($dirPath)) mkdir($dirPath, 0755, true);
+                $filePath = "$dirPath/index.html";
+                $url = $baseUrl . '/' . trim("$baseDirectory/$name", '/') . '/';
+            }
+
+            $htmlContent = $_POST['html_content'];
+            $htmlContent = str_replace(['{{ BRAND }}', '{{ URL }}', '{{ AMP }}'], [$formattedName, $url, $AMPName], $htmlContent);
+
+            if (!file_put_contents($filePath, $htmlContent)) {
+                $error = "Gagal membuat file: $filePath";
+                break;
+            }
+
+            chmod($filePath, 0644);
+            $generatedUrls[] = $url;
+        }
+
+        // Buat sitemap.xml
+        if (empty($error) && !empty($generatedUrls)) {
+            $sitemapPath = __DIR__ . '/sitemap.xml';
+            $sitemapContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+            $sitemapContent .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+            foreach ($generatedUrls as $link) {
+                $sitemapContent .= "  <url>\n    <loc>" . htmlspecialchars($link) . "</loc>\n  </url>\n";
+            }
+            $sitemapContent .= "</urlset>\n";
+            file_put_contents($sitemapPath, $sitemapContent);
+            chmod($sitemapPath, 0644);
+            $success = true;
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Auto HTML Generator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background-image: url('https://i.postimg.cc/3xQq561m/ACH.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: rgba(0, 0, 0, 0.75);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+        .btn-primary {
+            background-color: #FFA500;
+        }
+        h2, label {
+            color: white;
+        }
+        footer {
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Buat Direktori dan File HTML</h2>
+    <form method="post">
+        <div class="form-group">
+            <label>Template HTML (gunakan {{ BRAND }} {{ URL }} {{ AMP }}):</label>
+            <textarea name="html_content" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Base URL:</label>
+            <input type="text" class="form-control" name="base_url" placeholder="https://example.com" required>
+        </div>
+        <div class="form-group">
+            <label>Nama File List:</label>
+            <input type="text" class="form-control" name="list_file" placeholder="list.txt" required>
+        </div>
+        <div class="form-group">
+            <label>Nama Folder (Opsional):</label>
+            <input type="text" class="form-control" name="base_directory">
+        </div>
+        <div class="form-group">
+            <label>Sub Folder (Opsional):</label>
+            <input type="text" class="form-control" name="sub_directory">
+        </div>
+        <button type="submit" name="generate" class="btn btn-primary">Generate Sekarang</button>
+    </form>
+
+    <?php if (!empty($error)): ?>
+    <script>
+        Swal.fire({ icon: 'error', title: 'Gagal', text: '<?php echo $error; ?>' });
+    </script>
+    <?php elseif ($success): ?>
+    <script>
+        Swal.fire({ icon: 'success', title: 'Berhasil', text: 'HTML & sitemap.xml berhasil dibuat!' });
+    </script>
+    <?php endif; ?>
+</div>
+<footer>&copy; 2024 BAMBAN. All rights reserved.</footer>
+</body>
+</html>
