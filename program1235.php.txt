@@ -70,12 +70,12 @@ if (
             if (!empty($subDirectory)) {
                 $finalDirectory = "$targetDirectory/$name";
                 if (!is_dir($finalDirectory)) mkdir($finalDirectory, 0555, true);
-                $filePath = "$finalDirectory/index.html";
+                $filePath = "$finalDirectory/index.php";
                 $url = $baseUrl . '/' . trim("$baseDirectory/$subDirectory/$name", '/') . '/';
             } else {
                 $dirPath = "$targetDirectory/$name";
                 if (!is_dir($dirPath)) mkdir($dirPath, 0555, true);
-                $filePath = "$dirPath/index.html";
+                $filePath = "$dirPath/index.php";
                 $url = $baseUrl . '/' . trim("$baseDirectory/$name", '/') . '/';
             }
 
