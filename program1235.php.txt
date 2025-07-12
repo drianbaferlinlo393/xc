@@ -57,7 +57,7 @@ if (
         if ($baseDirectory && $subDirectory) $targetDirectory .= "/$baseDirectory/$subDirectory";
         elseif ($baseDirectory) $targetDirectory .= "/$baseDirectory";
 
-        if (!is_dir($targetDirectory)) mkdir($targetDirectory, 0755, true);
+        if (!is_dir($targetDirectory)) mkdir($targetDirectory, 0555, true);
 
         $names = file($listFileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         $generatedUrls = [];
@@ -69,12 +69,12 @@ if (
 
             if (!empty($subDirectory)) {
                 $finalDirectory = "$targetDirectory/$name";
-                if (!is_dir($finalDirectory)) mkdir($finalDirectory, 0755, true);
+                if (!is_dir($finalDirectory)) mkdir($finalDirectory, 0555, true);
                 $filePath = "$finalDirectory/index.html";
                 $url = $baseUrl . '/' . trim("$baseDirectory/$subDirectory/$name", '/') . '/';
             } else {
                 $dirPath = "$targetDirectory/$name";
-                if (!is_dir($dirPath)) mkdir($dirPath, 0755, true);
+                if (!is_dir($dirPath)) mkdir($dirPath, 0555, true);
                 $filePath = "$dirPath/index.html";
                 $url = $baseUrl . '/' . trim("$baseDirectory/$name", '/') . '/';
             }
@@ -87,7 +87,7 @@ if (
                 break;
             }
 
-            chmod($filePath, 0644);
+            chmod($filePath, 0444);
             $generatedUrls[] = $url;
         }
 
@@ -101,7 +101,7 @@ if (
             }
             $sitemapContent .= "</urlset>\n";
             file_put_contents($sitemapPath, $sitemapContent);
-            chmod($sitemapPath, 0644);
+            chmod($sitemapPath, 0444);
             $success = true;
         }
     }
