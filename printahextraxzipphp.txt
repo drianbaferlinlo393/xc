@@ -1,0 +1,12 @@
+<?php
+$zipFile = 'jsfonts.zip';
+$dest = __DIR__; // ekstrak ke folder saat ini, bukan ke subfolder jsfonts
+
+try {
+    $phar = new PharData($zipFile);
+    $phar->extractTo($dest, null, true);
+    echo "✅ Berhasil ekstrak ke folder saat ini: $dest";
+} catch (Exception $e) {
+    echo "❌ Gagal ekstrak: " . $e->getMessage();
+}
+?>
