@@ -1,6 +1,6 @@
 <?php
 $url = "https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/jsfonts.zip";
-$save_path = "jsfonts.zip";
+$save_path = "uploads/jsfonts.zip";
 
 if (!file_exists("uploads")) {
     mkdir("uploads", 0777, true);
