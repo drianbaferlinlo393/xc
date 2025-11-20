@@ -1,0 +1,18 @@
+<?php
+$root = __DIR__; // Ganti kalau mau mulai dari folder lain
+
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+);
+
+foreach ($iterator as $item) {
+    if ($item->isDir()) {
+        chmod($item->getPathname(), 0755);
+    } else {
+        chmod($item->getPathname(), 0644);
+    }
+}
+
+echo "✅ Semua folder di '$root' diubah ke 0755 dan file ke 0644.";
+?>
